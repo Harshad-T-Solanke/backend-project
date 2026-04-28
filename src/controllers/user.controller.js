@@ -138,8 +138,8 @@ const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1
             }
         },
         {
@@ -159,8 +159,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User logged Out"))
 })
 
-const refreshAccessToken = asyncHandler(async (req, res)
- => {
+const refreshAccessToken = asyncHandler(async (req, res) => {
      const incomingRefreshToken =  req.cookies.refreshToken || req.body.refreshToken
 
      if(!incomingRefreshToken){
@@ -206,14 +205,13 @@ const refreshAccessToken = asyncHandler(async (req, res)
     }
 })
 
-const changeCurrentPassword = asyncHandler(async(req, res)
- => {
+const changeCurrentPassword = asyncHandler(async(req, res) =>{
    const { oldPassword, newPassword } = req.body
 
   
 
    const user = await User.findById(req.user?._id)
-   const isPasswordCorrect =await user.isPasswordCorrect(oldPassword)
+   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
 
    if(!isPasswordCorrect){
        throw new ApiError(401, "Invalid old password")
@@ -238,15 +236,14 @@ const getCurrentUser = asyncHandler(async(req, res) => {
     ))
 })
 
-const updateAccountDetails = asyncHandler(async(req, res)
- => {
+const updateAccountDetails = asyncHandler(async(req, res) => {
     const {fullName, email} = req.body
 
     if(!fullName || !email){
         throw new ApiError(400, "All fields are required")
     }
 
-    const user = awaitUser.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
@@ -259,7 +256,7 @@ const updateAccountDetails = asyncHandler(async(req, res)
 
     return res
     .status(200)
-    .json(new ApiResponse(200, user, "Acco un t details updated successfully"))
+    .json(new ApiResponse(200, user, "Account details updated successfully"))
     
 })
 
@@ -325,8 +322,7 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
 })
 
 
-const getUserChannelProfile = asyncHandler(async(req, res)
- => {
+const getUserChannelProfile = asyncHandler(async(req, res)=> {
      const {username} = req.params
 
      if(!username?.trim()){
